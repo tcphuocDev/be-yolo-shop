@@ -1,0 +1,10 @@
+{
+  "SUCCESS":"Thành công",
+  "LOGIN_SUCCESSFULLY":"Đăng nhập thành công",
+  "defineUser":{
+    "createSuccess":"Tạo thành công người dùng",
+    "updateSuccess":"Sửa thành công người dùng",
+    "deleteSuccess":"Xóa thành công người dùng",
+    "changePasswordSuccess":"Thay đổi mật khẩu thành công"
+  }
+}
