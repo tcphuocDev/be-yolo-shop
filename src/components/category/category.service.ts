@@ -42,7 +42,7 @@ export class CategoryService {
       excludeExtraneousValues: true,
     });
 
-    return new ResponseBuilder<PagingResponse>({
+    return new ResponseBuilder({
       items: dataReturn,
       meta: {
         total: count,

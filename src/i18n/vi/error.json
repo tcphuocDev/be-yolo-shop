@@ -17,13 +17,12 @@
   "PHONE_EXISTS" : "Số điện thoại đã được sử dụng",
   "INVALID_CATEGORY" : "Danh mục không hợp lệ",
   "USER_BLOCKED" : "Tài khoản của bạn đã bị khoá",
-  "REVIEW_EXIST" : "Bạn đã đánh giá cho sản phẩm này rồi",
-  "CANNOT_REVIEW" : "Bạn không được phép đánh giá sản phẩm này",
   "CAN_NOT_UPDATE_STATUS" : "Không thể thay đổi trạng thái",
   "INVALID_PASSWORD" : "Sai mật khẩu",
   "INVALID_OTP" : "Không tồn tại OTP",
   "OTP_EXPIRED" : "OTP đã hết hiệu lực",
   "EMAIL_EXISTS" : "Địa chỉ email đã được sử dụng",
   "CANNOT_SETUP_PASSWORD" : "Không thể tạo mật khẩu",
-  "UNAUTHORIZED" : "Vui lòng nhập OTP hoặc mật khẩu để đăng nhập"
+  "UNAUTHORIZED" : "Vui lòng nhập OTP hoặc mật khẩu để đăng nhập",
+  "PRODUCT_VERSION_NOT_FOUND":"Sản phẩm chi tiết không tồn tại"
 }

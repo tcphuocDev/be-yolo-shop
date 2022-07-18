@@ -43,10 +43,10 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Roles(RoleEnum.ADMIN)
-  @Put(':id')
+  @Put('/:id')
   public async update(
-    @Body() request: UpdateUserRequestDto,
     @Param() param: DetailRequest,
+    @Body() request: UpdateUserRequestDto,
     @Request() req: any,
   ) {
     const result = await this.userService.update(
