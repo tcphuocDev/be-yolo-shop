@@ -6,5 +6,37 @@
     "updateSuccess":"Sửa thành công người dùng",
     "deleteSuccess":"Xóa thành công người dùng",
     "changePasswordSuccess":"Thay đổi mật khẩu thành công"
+  },
+  "defineColor":{
+    "createSuccess":"Tạo thành công màu sắc",
+    "updateSuccess":"Sửa thành công màu sắc",
+    "deleteSuccess":"Xóa thành công người sắc"
+  },
+  "defineSize":{
+    "createSuccess":"Tạo thành công kích cỡ",
+    "updateSuccess":"Sửa thành công kích cỡ",
+    "deleteSuccess":"Xóa thành công kích cỡ"
+  },
+  "defineCategory":{
+    "createSuccess":"Tạo thành công danh mục",
+    "updateSuccess":"Sửa thành công danh mục",
+    "deleteSuccess":"Xóa thành công danh mục"
+  },
+  "defineAddress":{
+    "createSuccess":"Tạo thành công địa chỉ",
+    "updateSuccess":"Sửa thành công địa chỉ",
+    "deleteSuccess":"Xóa thành công địa chỉ"
+  },
+  "defineProduct":{
+    "createSuccess":"Tạo thành công sản phẩm",
+    "updateSuccess":"Sửa thành công sản phẩm",
+    "deleteSuccess":"Xóa thành công sản phẩm"
+  },
+  "defineOrder":{
+    "createSuccess":"Tạo thành công đơn hàng",
+    "updateSuccess":"Sửa thành công đơn hàng",
+    "deleteSuccess":"Xóa thành công đơn hàng",
+    "addSucess":"Thêm thành công sản phẩm vào giỏ hàng",
+    "confirmSuccess":"Xác nhận thành công đơn hàng"
   }
 }

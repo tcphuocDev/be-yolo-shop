@@ -37,7 +37,7 @@ export class UserService {
       excludeExtraneousValues: true,
     });
 
-    return new ResponseBuilder<PagingResponse>({
+    return new ResponseBuilder({
       items: dataReturn,
       meta: {
         total: count,
@@ -68,7 +68,10 @@ export class UserService {
     for (let key in request) {
       user[key] = request[key];
     }
-    const response = await this.save(user);
+    const result = await this.userRepository.create(user);
+    const response = plainToClass(UserResponseDto, result, {
+      excludeExtraneousValues: true,
+    });
     return new ResponseBuilder(response)
       .withCode(ResponseCodeEnum.SUCCESS)
       .withMessage(await this.i18n.translate('message.SUCCESS'))

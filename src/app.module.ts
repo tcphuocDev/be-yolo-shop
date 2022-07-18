@@ -15,6 +15,10 @@ import { ValidationPipe } from '@core/pipe/validation.pipe';
 import { CategoryModule } from '@components/category/category.module';
 import { ColorModule } from '@components/color/color.module';
 import { SizeModule } from '@components/size/size.module';
+import { ProductModule } from '@components/product/product.module';
+import { CouponModule } from '@components/coupon/coupon.module';
+import { AddressModule } from '@components/address/address.module';
+import { OrderModule } from '@components/order/order.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot(connectionOptions),
@@ -32,6 +36,10 @@ import { SizeModule } from '@components/size/size.module';
     CategoryModule,
     ColorModule,
     SizeModule,
+    ProductModule,
+    CouponModule,
+    AddressModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [

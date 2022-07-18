@@ -54,8 +54,6 @@ export class SizeService {
   async detail(request: DetailRequest): Promise<any> {
     try {
       const size = await this.sizeRepository.findOneById(request.id);
-      console.log(size);
-
       if (isEmpty(size)) {
         return new ResponseBuilder()
           .withCode(ResponseCodeEnum.NOT_FOUND)
@@ -80,8 +78,6 @@ export class SizeService {
 
   async update(request: UpdateSizeRequest): Promise<any> {
     const size = await this.sizeRepository.findOneById(request.id);
-    console.log(size);
-
     if (!size) {
       return new ResponseBuilder()
         .withCode(ResponseCodeEnum.NOT_FOUND)
@@ -90,8 +86,6 @@ export class SizeService {
     }
     size.name = request.name;
     const data = await this.sizeRepository.create(request);
-    console.log('data', data);
-
     const response = plainToClass(SizeResponse, data, {
       excludeExtraneousValues: true,
     });

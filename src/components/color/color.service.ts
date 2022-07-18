@@ -59,7 +59,7 @@ export class ColorService {
       excludeExtraneousValues: true,
     });
 
-    return new ResponseBuilder<PagingResponse>({
+    return new ResponseBuilder({
       items: dataReturn,
       meta: {
         total: count,
@@ -91,8 +91,6 @@ export class ColorService {
 
   async delete(request: DetailRequest): Promise<any> {
     const color = await this.colorRepository.findOneById(request.id);
-    console.log(color);
-
     if (!color) {
       return new ResponseBuilder()
         .withCode(ResponseCodeEnum.NOT_FOUND)

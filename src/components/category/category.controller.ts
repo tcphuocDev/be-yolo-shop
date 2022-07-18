@@ -56,8 +56,6 @@ export class CategoryController {
   @Public()
   @Get(':id')
   getCategory(@Param('id', new ParseIntPipe()) id: number) {
-    console.log(id);
-
     return this.categoryService.getCategory(id);
   }
 
