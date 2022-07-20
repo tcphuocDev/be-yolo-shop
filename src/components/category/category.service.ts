@@ -29,7 +29,9 @@ export class CategoryService {
     const category = await this.categoryRepository.create(categoryEntity);
     return new ResponseBuilder(category)
       .withCode(ResponseCodeEnum.SUCCESS)
-      .withMessage(await this.i18n.translate('message.SUCCESS'))
+      .withMessage(
+        await this.i18n.translate('message.defineCategory.createSuccess'),
+      )
       .build();
   }
 
@@ -83,7 +85,12 @@ export class CategoryService {
 
     await this.categoryRepository.remove(category.id);
 
-    return new ResponseBuilder().withCode(ResponseCodeEnum.SUCCESS).build();
+    return new ResponseBuilder()
+      .withCode(ResponseCodeEnum.SUCCESS)
+      .withMessage(
+        await this.i18n.translate('message.defineCategory.deleteSuccess'),
+      )
+      .build();
   }
 
   public async updateCategory(request: any): Promise<any> {
@@ -104,7 +111,7 @@ export class CategoryService {
     });
 
     return new ResponseBuilder(response)
-      .withMessage(await this.i18n.translate('message.SUCCESS'))
+      .withMessage(await this.i18n.translate('message.define.updateSuccess'))
       .build();
   }
 }

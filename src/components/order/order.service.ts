@@ -2,6 +2,7 @@ import { AddressRepositoryInterface } from '@components/address/interface/addres
 import { ProductVersionRepositoryInterface } from '@components/product/interface/product-version.repository.interface';
 import { ProductRepositoryInterface } from '@components/product/interface/product.repository.interface';
 import { UserRepositoryInterface } from '@components/user/interface/user.repository.interface';
+import { UserStatusEnum } from '@components/user/user.constants';
 import { ProductEntity } from '@entities/product/product.entity';
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/typeorm';
@@ -19,6 +20,7 @@ import { ResponseCodeEnum } from 'src/constants/response-code.enum';
 import { Connection, In } from 'typeorm';
 import { ListOrderQuery } from './dto/query/list-order.query';
 import { ChangeStatusRequest } from './dto/request/change-status.request';
+import { CheckoutOrderPublicRequest } from './dto/request/checkout-order.public.request';
 import { CheckoutOrderRequest } from './dto/request/checkout-order.request';
 import { CreateOrderRequest } from './dto/request/create-order.request';
 import { UpdateOrderRequest } from './dto/request/update-order.request';
@@ -59,15 +61,12 @@ export class OrderService {
       userId: user.id,
       status: OrderStatusEnum.INCART,
     });
-    console.log(myOrderInCart);
-
     if (myOrderInCart) {
       return await this.update({ ...request, id: myOrderInCart.id }, user);
     }
     const productVersionIds = request.products.map((item) => {
       return item.productVersionId;
     });
-    console.log(productVersionIds);
     const productVersions = await this.productVersionRepository.findByCondition(
       {
         id: In(productVersionIds),
@@ -191,8 +190,6 @@ export class OrderService {
       excludeExtraneousValues: true,
     });
 
-    console.log('data', dataReturn);
-
     return new ResponseBuilder(dataReturn)
       .withCode(ResponseCodeEnum.SUCCESS)
       .withMessage(await this.i18n.translate('message.SUCCESS'))
@@ -225,8 +222,6 @@ export class OrderService {
     id: number,
   ): Promise<ResponsePayload<any>> {
     const order = await this.orderRepository.findOneById(id);
-    console.log(order);
-
     if (!order) {
       return new ApiError(
         ResponseCodeEnum.NOT_FOUND,
@@ -334,9 +329,6 @@ export class OrderService {
     request: CheckoutOrderRequest,
     user: UserRequest,
   ): Promise<any> {
-    console.log(request.id);
-    console.log(OrderStatusEnum.INCART);
-
     const myOrderInCart = await this.orderRepository.findOneByCondition({
       userId: user.id,
       status: OrderStatusEnum.INCART,
@@ -348,7 +340,6 @@ export class OrderService {
         await this.i18n.translate('error.NOT_FOUND'),
       ).toResponse();
     }
-
     const myOrderDetailInCarts =
       await this.orderDetailRepository.findByCondition({
         orderId: myOrderInCart.id,
@@ -396,18 +387,17 @@ export class OrderService {
         .withMessage(await this.i18n.translate('error.INVALID_QUANTITY'))
         .build();
     }
-    // const currentUserAddress = await this.addressRepository.findOneByCondition({
-    //   userId: user.id,
-    // });
+    const currentUserAddress = await this.addressRepository.findOneByCondition({
+      userId: user.id,
+    });
+    if (!currentUserAddress) {
+      return new ApiError(
+        ResponseCodeEnum.BAD_REQUEST,
+        await this.i18n.translate('error.INVALID_ADDRESS'),
+      ).toResponse();
+    }
 
-    // if (!currentUserAddress) {
-    //   return new ApiError(
-    //     ResponseCodeEnum.BAD_REQUEST,
-    //     await this.i18n.translate('error.INVALID_ADDRESS'),
-    //   ).toResponse();
-    // }
-
-    // myOrderInCart.address = currentUserAddress.address;
+    myOrderInCart.address = currentUserAddress.address;
     myOrderInCart.phone = user.phone;
 
     myOrderDetailInCarts.forEach((e) => {
@@ -437,6 +427,129 @@ export class OrderService {
       return new ResponseBuilder()
         .withCode(ResponseCodeEnum.BAD_REQUEST)
         .withMessage(err.message)
+        .build();
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async checkoutPublic(request: CheckoutOrderPublicRequest): Promise<any> {
+    const userExist = await this.userRepository.findOneByCondition({
+      phone: request.phone,
+    });
+
+    if (userExist?.isActive === UserStatusEnum.DeActive) {
+      return new ApiError(
+        ResponseCodeEnum.BAD_REQUEST,
+        await this.i18n.translate('error.PHONE_BLOCK'),
+      ).toResponse();
+    }
+
+    let uId = userExist?.id;
+    const productVersionIds = request.products.map(
+      (item) => item.productVersionId,
+    );
+    const productVersions = await this.productVersionRepository.findByCondition(
+      {
+        id: In(productVersionIds),
+      },
+    );
+    if (productVersionIds.length !== productVersions.length) {
+      return new ApiError(
+        ResponseCodeEnum.NOT_FOUND,
+        await this.i18n.translate('error.NOT_FOUND'),
+      ).toResponse();
+    }
+    const productVersionMap = new Map();
+    const productVersionInCartMap = new Map();
+    const productQuantityInvalid = [];
+    request.products.forEach((e) => {
+      productVersionInCartMap.set(e.productVersionId, e.quantity);
+    });
+
+    productVersions.forEach((productVersion) => {
+      productVersionMap.set(productVersion.id, productVersion);
+      productVersion.quantity =
+        productVersion.quantity -
+          productVersionInCartMap.get(productVersion.id) || 0;
+      if (productVersion.quantity < 0) {
+        productQuantityInvalid.push(productVersion.id);
+      }
+    });
+
+    if (productQuantityInvalid.length) {
+      return new ResponseBuilder({
+        items: productQuantityInvalid,
+      })
+        .withCode(ResponseCodeEnum.BAD_REQUEST)
+        .withMessage(await this.i18n.translate('error.INVALID_QUANTITY'))
+        .build();
+    }
+    const queryRunner = this.connection.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      if (!userExist) {
+        const userEntity = this.userRepository.createEntityPublic(
+          request.phone,
+          request.fullname,
+          request.gender,
+          request.email,
+        );
+        const user = await queryRunner.manager.save(userEntity);
+        uId = user.id;
+      } else {
+        userExist.fullname = request.fullname;
+        userExist.email = request.email;
+        userExist.gender = request.gender;
+        await queryRunner.manager.save(userExist);
+      }
+      const orderEntity = this.orderRepository.createOrder(uId, {
+        phone: request.phone,
+        address: request.address,
+        status: OrderStatusEnum.WAITING_CONFIRM,
+      });
+      const order = await queryRunner.manager.save(orderEntity);
+      const address = await this.addressRepository.findOneByCondition({
+        address: request.address,
+        userId: uId,
+      });
+      if (!address) {
+        const addressEntity = this.addressRepository.createAddressEntity(
+          {
+            ...request,
+            address: request.address,
+          },
+          uId,
+        );
+        await queryRunner.manager.save(addressEntity);
+      }
+      const orderDetailEntities = request.products.map((item) =>
+        this.orderDetailRepository.createOrderDetail({
+          productVersionId: item.productVersionId,
+          orderId: order.id,
+          quantity: item.quantity,
+          price:
+            productVersionMap.get(item.productVersionId).salePrice ||
+            productVersionMap.get(item.productVersionId).price,
+        }),
+      );
+
+      await queryRunner.manager.save(orderDetailEntities);
+      await queryRunner.manager.save(productVersions);
+      await queryRunner.commitTransaction();
+
+      return new ResponseBuilder()
+        .withCode(ResponseCodeEnum.SUCCESS)
+        .withMessage(await this.i18n.translate('message.SUCCESS'))
+        .build();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      return new ResponseBuilder()
+        .withCode(ResponseCodeEnum.BAD_REQUEST)
+        .withMessage(await this.i18n.translate(err.message))
         .build();
     } finally {
       await queryRunner.release();

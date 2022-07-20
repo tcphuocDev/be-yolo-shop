@@ -16,6 +16,10 @@ export class CheckoutOrderPublicRequest extends CreateOrderRequest {
 
   @IsString()
   @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
   address: string;
 
   @IsString()
@@ -26,8 +30,8 @@ export class CheckoutOrderPublicRequest extends CreateOrderRequest {
   @IsNotEmpty()
   gender: GenderEnum;
 
-  @IsInt()
-  @Transform(({ value }) => Number(value))
-  @IsOptional()
-  couponId: number;
+  // @IsInt()
+  // @Transform(({ value }) => Number(value))
+  // @IsOptional()
+  // couponId: number;
 }

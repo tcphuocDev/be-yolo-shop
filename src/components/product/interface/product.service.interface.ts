@@ -9,7 +9,8 @@ export interface ProductServiceInterface {
   list(request: ListProductQuery): Promise<any>;
   detail(id: number): Promise<any>;
   update(
-    request: UpdateProductRequest & DetailRequest,
+    request: UpdateProductRequest,
     files: any,
   ): Promise<ResponsePayload<any>>;
+  delete(request: DetailRequest): Promise<any>;
 }

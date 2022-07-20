@@ -30,7 +30,7 @@ export class OrderRepository
     super(orderRepository);
   }
   createOrder(userId: number, data: any): OrderEntity {
-    const { phone, address, status, coupon } = data;
+    const { phone, address, status } = data;
     const newEntity = new OrderEntity();
     newEntity.userId = userId;
     newEntity.phone = phone;
