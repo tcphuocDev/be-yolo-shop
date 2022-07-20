@@ -22,5 +22,6 @@
       "@utils/*": ["src/utils/*"],
       "@core/*": ["src/core/*"],
     },
-  }
+  },
+  "exclude": ["uploads"]
 }

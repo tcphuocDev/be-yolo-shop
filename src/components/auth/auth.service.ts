@@ -19,12 +19,16 @@ import { UpdatePasswordRequestDto } from './dto/request/update-password.request.
 import { UserRequest } from '@utils/user.request';
 import { UpdateUserRequestDto } from './dto/request/update-user.request.dto';
 import * as bcrypt from 'bcryptjs';
+import { AddressRepository } from '@repositories/address/address.repository';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject('UserRepositoryInterface')
     private readonly userRepository: UserRepositoryInterface,
+
+    @Inject('AddressRepositoryInterface')
+    private readonly addressRepository: AddressRepository,
 
     private readonly jwtService: JwtService,
 
@@ -127,7 +131,9 @@ export class AuthService {
     } else {
       dataReturn.isPassword = false;
     }
-
+    dataReturn.addresses = await this.addressRepository.findByCondition({
+      userId: dataReturn.id,
+    });
     return new ResponseBuilder(dataReturn)
       .withCode(ResponseCodeEnum.SUCCESS)
       .withMessage(await this.i18n.translate('message.SUCCESS'))

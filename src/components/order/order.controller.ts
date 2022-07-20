@@ -1,4 +1,5 @@
 import { JwtAuthGuard } from '@components/auth/guards/jwt-auth.guard';
+import { Public } from '@core/decorators/public.decorator';
 import { Roles } from '@core/decorators/roles.decorator';
 import {
   Body,
@@ -19,6 +20,7 @@ import { isEmpty } from 'lodash';
 import { RoleEnum } from 'src/constants/role.enum';
 import { ListOrderQuery } from './dto/query/list-order.query';
 import { ChangeStatusRequest } from './dto/request/change-status.request';
+import { CheckoutOrderPublicRequest } from './dto/request/checkout-order.public.request';
 import { CheckoutOrderRequest } from './dto/request/checkout-order.request';
 import { CreateOrderRequest } from './dto/request/create-order.request';
 import { UpdateOrderBodyDto } from './dto/request/update-order.request';
@@ -95,5 +97,16 @@ export class OrderController {
     }
 
     return this.orderService.changeStatus(request, id);
+  }
+
+  @Public()
+  @Post('checkout-public')
+  checkoutPublic(@Body() body: CheckoutOrderPublicRequest) {
+    const { request, responseError } = body;
+    if (responseError && !isEmpty(responseError)) {
+      return responseError;
+    }
+
+    return this.orderService.checkoutPublic(request);
   }
 }

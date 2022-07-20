@@ -181,7 +181,7 @@ export class ProductService {
   }
 
   async update(
-    request: UpdateProductRequest & DetailRequest,
+    request: UpdateProductRequest,
     files: any,
   ): Promise<ResponsePayload<any>> {
     const product = await this.productRepository.findOneById(request.id);
@@ -197,12 +197,10 @@ export class ProductService {
     const colorIds = [];
     const sizeIds = [];
 
-    // const a = first(
-    //   request.productVersions.map((e) => {
-    //     console.log(e);
-    //   }),
-    // );
-    // console.log('a', a);
+    request.productVersions.forEach((e) => {
+      colorIds.push(e.colorId);
+      sizeIds.push(e.sizeId);
+    });
 
     const category = await this.categoryRepository.findOneById(
       request.categoryId,
@@ -243,9 +241,9 @@ export class ProductService {
     const productVersionMap = new Map();
     const productVersionFlag = new Map();
 
-    // request.productVersions.forEach((e) => {
-    //   productVersionMap.set(`${e.colorId}_${e.sizeId}`, e);
-    // });
+    request.productVersions.forEach((e) => {
+      productVersionMap.set(`${e.colorId}_${e.sizeId}`, e);
+    });
 
     const productVersionExists =
       await this.productVersionRepository.findByCondition({
@@ -321,6 +319,23 @@ export class ProductService {
     } finally {
       await queryRunner.release();
     }
+    return new ResponseBuilder()
+      .withCode(ResponseCodeEnum.SUCCESS)
+      .withMessage(await this.i18n.translate('message.SUCCESS'))
+      .build();
+  }
+
+  async delete(request: DetailRequest): Promise<any> {
+    const product = await this.productRepository.findOneById(request.id);
+    if (!product) {
+      return new ApiError(
+        ResponseCodeEnum.NOT_FOUND,
+        await this.i18n.translate('error.NOT_FOUND'),
+      ).toResponse();
+    }
+
+    product.deletedAt = new Date();
+    await this.productRepository.remove(product.id);
     return new ResponseBuilder()
       .withCode(ResponseCodeEnum.SUCCESS)
       .withMessage(await this.i18n.translate('message.SUCCESS'))

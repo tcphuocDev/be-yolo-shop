@@ -3,9 +3,11 @@ import { Public } from '@core/decorators/public.decorator';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -20,7 +22,10 @@ import { diskStorage } from 'multer';
 import * as path from 'path';
 import { ListProductQuery } from './dto/query/list-product.query';
 import { CreateProductRequest } from './dto/request/create-product.request';
-import { UpdateProductRequest } from './dto/request/update-product.request';
+import {
+  UpdateProductBodyDto,
+  UpdateProductRequest,
+} from './dto/request/update-product.request';
 import { ProductServiceInterface } from './interface/product.service.interface';
 
 @Controller('products')
@@ -93,10 +98,26 @@ export class ProductController {
     }),
   )
   update(
-    @Body() request: UpdateProductRequest,
-    @Param() param: DetailRequest,
+    @Body() body: UpdateProductBodyDto,
+    @Param('id', new ParseIntPipe()) id: number,
     @UploadedFiles() files: any,
   ) {
-    return this.productService.update({ ...request, ...param }, files);
+    const { request, responseError } = body;
+    if (responseError && !isEmpty(responseError)) {
+      return responseError;
+    }
+
+    return this.productService.update({ ...request, id }, files);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('/:id')
+  delete(@Param() param: DetailRequest) {
+    const { request, responseError } = param;
+
+    if (responseError && !isEmpty(responseError)) {
+      return responseError;
+    }
+    return this.productService.delete(request);
   }
 }
