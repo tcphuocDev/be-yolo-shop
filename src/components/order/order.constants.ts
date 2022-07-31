@@ -19,6 +19,6 @@ export const OrderStatusTitle = [
 ];
 
 export enum IsMe {
-  No,
-  Yes,
+  No = 0,
+  Yes = 1,
 }

@@ -21,9 +21,10 @@ import { ListProductResponse } from './dto/response/list-product.response';
 import { ProductImageRepositoryInterface } from './interface/product-image.repository.interface';
 import { ProductVersionRepositoryInterface } from './interface/product-version.repository.interface';
 import { ProductRepositoryInterface } from './interface/product.repository.interface';
+import { ProductServiceInterface } from './interface/product.service.interface';
 
 @Injectable()
-export class ProductService {
+export class ProductService implements ProductServiceInterface {
   constructor(
     @Inject('ProductRepositoryInterface')
     private readonly productRepository: ProductRepositoryInterface,

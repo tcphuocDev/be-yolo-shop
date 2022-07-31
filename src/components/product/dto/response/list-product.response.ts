@@ -8,9 +8,15 @@ export class BaseResponse {
   name: string;
 }
 
-class Category extends BaseResponse {}
+class Category extends BaseResponse {
+  @Expose()
+  slug: string;
+}
 
-class Color extends BaseResponse {}
+class Color extends BaseResponse {
+  @Expose()
+  code: string;
+}
 
 class Size extends BaseResponse {}
 
@@ -39,6 +45,9 @@ class ProductVersion {
   @Type(() => Size)
   @Expose()
   size: Size;
+
+  @Expose()
+  quantity: number;
 }
 export class ListProductResponse {
   @Expose()

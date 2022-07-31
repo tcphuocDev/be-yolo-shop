@@ -1,6 +1,6 @@
 import { PaginationQuery } from '@utils/pagination.query';
 import { Transform } from 'class-transformer';
-import { IsInt, IsOptional } from 'class-validator';
+import { IsInt, IsOptional, IsString } from 'class-validator';
 
 export class ListProductQuery extends PaginationQuery {
   @IsInt()
@@ -16,12 +16,21 @@ export class ListProductQuery extends PaginationQuery {
   @IsInt()
   @Transform(({ value }) => +value)
   @IsOptional()
+  isSame: number;
+
+  @IsInt()
+  @Transform(({ value }) => +value)
+  @IsOptional()
   sizeId: number;
 
   @IsInt()
   @Transform(({ value }) => +value)
   @IsOptional()
   price: number;
+
+  @IsString()
+  @IsOptional()
+  tag: string;
 
   // @IsInt()
   // @Transform(({ value }) => +value)

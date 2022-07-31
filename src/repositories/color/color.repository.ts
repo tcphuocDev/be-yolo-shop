@@ -23,13 +23,15 @@ export class ColorRepository
   public createEntity(request: CreateColorRequest): ColorEntity {
     const newEntity = new ColorEntity();
     newEntity.name = request.name;
+    newEntity.code = request.code;
+
     return newEntity;
   }
 
   public async list(request: ListColorQuery): Promise<[any[], number]> {
     const query = this.colorRepository
       .createQueryBuilder('s')
-      .select(['s.id AS id', 's.name AS name']);
+      .select(['s.id AS id', 's.name AS name', 's.code AS code']);
 
     let data;
     if (request.isGetAll === IsGetAll.Yes)

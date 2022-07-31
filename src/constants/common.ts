@@ -50,3 +50,7 @@ export const convertToSlug = function (url: string) {
 
   return reWrite.join('-');
 };
+export enum GenderEnum {
+  male = 0,
+  female = 1,
+}

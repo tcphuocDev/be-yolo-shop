@@ -6,7 +6,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { GenderEnum } from 'src/constants/gender.enum';
+import { GenderEnum } from 'src/constants/common';
 import { CreateOrderRequest } from './create-order.request';
 
 export class CheckoutOrderPublicRequest extends CreateOrderRequest {

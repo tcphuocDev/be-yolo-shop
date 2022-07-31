@@ -49,7 +49,7 @@ export class UserService {
       .build();
   }
   async update(
-    request: UpdateUserRequestDto & DetailRequest,
+    request: UpdateUserRequestDto,
     currentUser: UserRequest,
   ): Promise<any> {
     const user = await this.userRepository.findOneById(request.id);
@@ -65,9 +65,9 @@ export class UserService {
         .withMessage(await this.i18n.translate('error.CANNOT_UPDATE_CURRENT'))
         .build();
     }
-    for (let key in request) {
-      user[key] = request[key];
-    }
+
+    user.isActive = request.isActive;
+    user.role = request.role;
     const result = await this.userRepository.create(user);
     const response = plainToClass(UserResponseDto, result, {
       excludeExtraneousValues: true,

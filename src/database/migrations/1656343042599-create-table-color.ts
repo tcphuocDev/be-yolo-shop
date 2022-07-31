@@ -18,6 +18,11 @@ export class createTableColor1656343042599 implements MigrationInterface {
             type: 'varchar',
             length: '100',
           },
+          {
+            name: 'code',
+            type: 'varchar',
+            length: '10',
+          },
         ],
       }),
     );

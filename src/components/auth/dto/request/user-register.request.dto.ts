@@ -1,16 +1,17 @@
 import { BaseDto } from '@core/dto/base.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import { GenderEnum } from 'src/constants/common';
 import {
   IsEmail,
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
 } from 'class-validator';
-import { GenderEnum } from 'src/constants/gender.enum';
 export class UserRegisterRequest extends BaseDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @MaxLength(20)
   @ApiProperty({ example: '0789-789-7890', description: 'phone' })
@@ -28,9 +29,10 @@ export class UserRegisterRequest extends BaseDto {
   @MaxLength(255)
   fullname: string;
 
-  @ApiProperty({ example: '0:Nam , 1:nu', description: 'Nam, nu' })
-  @IsNotEmpty()
   @IsEnum(GenderEnum)
+  // @ApiProperty({ example: '0:Nam , 1:nu', description: 'Nam, nu' })
+  @IsOptional()
+  @IsInt()
   gender: number;
 
   @IsNotEmpty()

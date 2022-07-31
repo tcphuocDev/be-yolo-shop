@@ -5,7 +5,7 @@ import { IsEnum, IsOptional } from 'class-validator';
 
 export class ListOrderQuery extends PaginationQuery {
   @IsEnum(IsMe)
-  @Transform(({ value }) => +value)
+  @Transform((obj) => Number(obj.value))
   @IsOptional()
   isMe: IsMe;
 }

@@ -6,4 +6,7 @@ export class ColorResponse {
 
   @Expose()
   name: string;
+
+  @Expose()
+  code: string;
 }

@@ -74,6 +74,8 @@ export class AuthController {
     @Request() req: any,
   ) {
     const { request, responseError } = payload;
+    console.log('user', req);
+
     if (responseError && !isEmpty(responseError)) {
       return responseError;
     }

@@ -7,6 +7,7 @@ import { ResponsePayload } from '@utils/response-payload';
 import { plainToClass } from 'class-transformer';
 import { I18nService } from 'nestjs-i18n';
 import { ResponseCodeEnum } from 'src/constants/response-code.enum';
+import { Not } from 'typeorm';
 import { ListColorQuery } from './dto/query/list-color.query';
 import { CreateColorRequest } from './dto/request/create-color.request';
 import { UpdateColorRequest } from './dto/request/update-color.request';
@@ -32,7 +33,10 @@ export class ColorService {
   }
 
   public async updateColor(request: any): Promise<any> {
-    const color = await this.colorRepository.findOneById(request.id);
+    const color = await this.colorRepository.findOneByCondition({
+      id: request.id,
+      code: Not(request.code),
+    });
     if (!color) {
       return new ApiError(
         ResponseCodeEnum.NOT_FOUND,
