@@ -39,6 +39,12 @@ class ProductVersion {
   @Type(() => Size)
   @Expose()
   size: Size;
+
+  @Expose()
+  quantity: number;
+
+  // @Expose()
+  // productId: number;
 }
 export class ListProductResponse {
   @Expose()
@@ -62,6 +68,9 @@ export class ListProductResponse {
 
   @Expose()
   tag: string;
+
+  @Expose()
+  sell: number;
 
   @Expose()
   slug: string;

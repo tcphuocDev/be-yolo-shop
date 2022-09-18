@@ -12,22 +12,21 @@ import {
 import { isJson } from 'src/helper/string.helper';
 
 class OrderDetailRequest {
-  @IsInt()
   @Transform(({ value }) => Number(value))
+  @IsInt()
   @IsNotEmpty()
   productVersionId: number;
 
+  @Transform(({ value }) => Number(value))
   @IsInt()
+  @IsNotEmpty()
+  productId: number;
+
   @Min(1)
   @Transform(({ value }) => Number(value))
+  @IsInt()
   @IsNotEmpty()
   quantity: number;
-
-  @IsInt()
-  @Min(1)
-  @Transform(({ value }) => Number(value))
-  @IsOptional()
-  price: number;
 }
 
 export class CreateOrderRequest extends BaseDto {

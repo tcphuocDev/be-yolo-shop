@@ -85,17 +85,11 @@ export class SizeController {
 
   @UseGuards(JwtAuthGuard)
   @Delete('/:id')
-  async delete(
-    @Body() payload: DetailRequestBody,
-    @Param('id', new ParseIntPipe()) id,
-  ): Promise<any> {
+  async delete(@Param() payload: DetailRequestBody): Promise<any> {
     const { request, responseError } = payload;
     if (responseError && !isEmpty(responseError)) {
       return responseError;
     }
-    return this.sizeService.delete({
-      id,
-      ...request,
-    });
+    return this.sizeService.delete(request);
   }
 }

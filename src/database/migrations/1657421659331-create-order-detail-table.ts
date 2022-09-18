@@ -22,8 +22,18 @@ export class createOrderDetailTable1657421659331 implements MigrationInterface {
             isPrimary: true,
           },
           {
+            name: 'product_id',
+            type: 'int',
+            isPrimary: true,
+          },
+          {
             name: 'quantity',
             type: 'int',
+          },
+          {
+            name: 'price',
+            type: 'int',
+            isNullable: true,
           },
         ],
       }),

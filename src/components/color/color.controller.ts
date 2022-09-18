@@ -69,7 +69,11 @@ export class ColorController {
   
   @UseGuards(JwtAuthGuard)
   @Delete('/:id')
-  delete(@Param() request: DetailRequest) {
+  delete(@Param() payload: DetailRequest) {
+    const { request, responseError } = payload;
+    if (responseError && !isEmpty(responseError)) {
+      return responseError;
+    }
     return this.colorService.delete(request);
   }
 }

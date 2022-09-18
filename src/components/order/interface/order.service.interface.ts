@@ -18,7 +18,10 @@ export interface OrderServiceInterface {
 
   detail(id: number, request: IsMeQuery, user: number): Promise<any>;
 
-  list(request: ListOrderQuery, user: UserRequest): Promise<any>;
+  list(
+    request: ListOrderQuery,
+    user: UserRequest,
+  ): Promise<ResponsePayload<any>>;
 
   update(
     request: UpdateOrderRequest,
@@ -27,9 +30,12 @@ export interface OrderServiceInterface {
 
   checkout(request: CheckoutOrderRequest, user: UserRequest): Promise<any>;
 
+  // changeStatus(
+  //   request: ChangeStatusRequest,
+  //   id: number,
+  // ): Promise<ResponsePayload<any>>;
   changeStatus(
-    request: ChangeStatusRequest,
-    id: number,
+    request: ChangeStatusRequest & DetailRequest,
   ): Promise<ResponsePayload<any>>;
 
   checkoutPublic(request: CheckoutOrderPublicRequest): Promise<any>;

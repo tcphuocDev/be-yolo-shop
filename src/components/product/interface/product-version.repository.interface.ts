@@ -10,4 +10,5 @@ export interface ProductVersionRepositoryInterface
     quantity: number,
   ): ProductVersionEntity;
   getProductIdsByOrderId(orderId: number): Promise<any>;
+  countQuantity(): Promise<any>
 }

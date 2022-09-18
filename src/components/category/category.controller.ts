@@ -78,8 +78,12 @@ export class CategoryController {
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   public async delete(
-    @Param() request: DetailRequest,
+    @Param() payload: DetailRequest,
   ): Promise<ResponsePayload<any>> {
-    return await this.categoryService.delete(request.id);
+    const { request, responseError } = payload;
+    if (responseError && !isEmpty(responseError)) {
+      return responseError;
+    }
+    return await this.categoryService.delete(request);
   }
 }

@@ -67,7 +67,6 @@ export class AuthController {
 
     return this.authService.update(request, req.user);
   }
-
   @Put('update-pasword')
   updatePassword(
     @Body() payload: UpdatePasswordRequestDto,

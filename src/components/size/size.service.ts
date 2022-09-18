@@ -96,9 +96,9 @@ export class SizeService {
       .build();
   }
 
-  async delete(request: DetailRequest): Promise<any> {
+  async delete(id: number): Promise<any> {
     try {
-      const size = await this.sizeRepository.findOneById(request.id);
+      const size = await this.sizeRepository.findOneById(id);
       if (isEmpty(size)) {
         return new ResponseBuilder()
           .withCode(ResponseCodeEnum.NOT_FOUND)
@@ -106,7 +106,7 @@ export class SizeService {
           .build();
       }
 
-      await this.sizeRepository.remove(size.id);
+      await this.sizeRepository.remove(id);
       return new ResponseBuilder()
         .withCode(ResponseCodeEnum.SUCCESS)
         .withMessage(await this.i18n.translate('message.SUCCESS'))

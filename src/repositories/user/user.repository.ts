@@ -1,7 +1,10 @@
 import { UserRegisterRequest } from '@components/auth/dto/request/user-register.request.dto';
+import { OrderStatusEnum } from '@components/order/order.constants';
 import { ListUserQueryRequestDto } from '@components/user/dto/query/list-user.request.dto';
 import { UserRepositoryInterface } from '@components/user/interface/user.repository.interface';
 import { BaseAbstractRepository } from '@core/repository/base.abstract.repository';
+import { OrderDetailEntity } from '@entities/order/order-detail.entity';
+import { OrderEntity } from '@entities/order/order.entity';
 import { UserEntity } from '@entities/user/user.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -111,5 +114,33 @@ export class UserRepository
       .getRawMany();
     const count = await query.getCount();
     return [data, count];
+  }
+
+  public dashboardUser(): Promise<any> {
+    return this.userRepository
+      .createQueryBuilder('u')
+      .select([
+        'u.id AS user_id',
+        'u.fullname AS fullname',
+        'u.phone AS phone',
+        'SUM(qb.money) AS money',
+      ])
+      .innerJoin(
+        (qb) => {
+          return qb
+            .select([
+              'o.user_id AS user_id',
+              'SUM(od.quantity * od.price) AS money',
+            ])
+            .from(OrderEntity, 'o')
+            .innerJoin(OrderDetailEntity, 'od', 'od.order_id = o.id')
+            .where('o.status = :status', { status: OrderStatusEnum.SUCCESS })
+            .groupBy('o.user_id');
+        },
+        'qb',
+        'qb.user_id = u.id',
+      )
+      .groupBy('u.id')
+      .getRawMany();
   }
 }

@@ -19,6 +19,7 @@ import { ProductModule } from '@components/product/product.module';
 import { CouponModule } from '@components/coupon/coupon.module';
 import { AddressModule } from '@components/address/address.module';
 import { OrderModule } from '@components/order/order.module';
+import { DashboardModule } from '@components/dashboard/dashboard.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot(connectionOptions),
@@ -40,6 +41,7 @@ import { OrderModule } from '@components/order/order.module';
     CouponModule,
     AddressModule,
     OrderModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [

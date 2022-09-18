@@ -17,11 +17,13 @@ export class OrderDetailRepository
     super(orderDetailRepository);
   }
   createOrderDetail(data: any): OrderDetailEntity {
-    const { productVersionId, orderId, quantity } = data;
+    const { productVersionId, orderId, quantity, price, productId } = data;
     const newEntity = new OrderDetailEntity();
     newEntity.productVersionId = productVersionId;
     newEntity.orderId = orderId;
+    newEntity.productId = productId;
     newEntity.quantity = quantity;
+    newEntity.price = price;
     return newEntity;
   }
 }

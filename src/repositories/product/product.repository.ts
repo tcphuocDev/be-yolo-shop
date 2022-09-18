@@ -4,6 +4,7 @@ import { ProductRepositoryInterface } from '@components/product/interface/produc
 import { BaseAbstractRepository } from '@core/repository/base.abstract.repository';
 import { CategoryEntity } from '@entities/category/category.entity';
 import { ColorEntity } from '@entities/color/color.entity';
+import { OrderDetailEntity } from '@entities/order/order-detail.entity';
 import { ProductImageEntity } from '@entities/product/product-image.entity';
 import { ProductVersionEntity } from '@entities/product/product-version.entity';
 import { ProductEntity } from '@entities/product/product.entity';
@@ -46,10 +47,12 @@ export class ProductRepository
         'p.description AS description',
         'p.slug AS slug',
         'p.price AS price',
-        'p.sale_price AS salePrice',
-        'p.created_at AS createdAt',
-        'p.updated_at AS updatedAt',
-        `JSON_BUILD_OBJECT('id', c.id , 'name', c.name) AS category`,
+        'p.tag AS tag',
+        'p.sell AS sell',
+        'p.sale_price AS "salePrice"',
+        'p.created_at AS "createdAt"',
+        'p.updated_at AS "updatedAt"',
+        `JSON_BUILD_OBJECT('id', c.id , 'name', c.name,'slug', c.slug) AS category`,
         `CASE WHEN COUNT(qb1) = 0 THEN '[]' ELSE JSON_AGG(DISTINCT JSONB_BUILD_OBJECT(
         'id', qb1.id, 'url', qb1.url
       )) END AS "productImages"`,
@@ -94,7 +97,7 @@ export class ProductRepository
   }
 
   public async list(request: ListProductQuery): Promise<any> {
-    const query = this.productRepository
+    let query = this.productRepository
       .createQueryBuilder('p')
       .select([
         'p.id AS id',
@@ -102,7 +105,9 @@ export class ProductRepository
         'p.description AS description',
         'p.slug AS slug',
         'p.price AS price',
-        'p.sale_price AS salePrice',
+        'p.tag AS tag',
+        'p.sell AS sell',
+        'p.sale_price AS "salePrice"',
         'p.created_at AS createdAt',
         'p.updated_at AS updatedAt',
         `CASE WHEN COUNT(qb1) = 0 THEN '[]' ELSE JSON_AGG(DISTINCT JSONB_BUILD_OBJECT(
@@ -137,31 +142,31 @@ export class ProductRepository
             .innerJoin(ColorEntity, 'c', 'c.id = pv.color_id')
             .innerJoin(SizeEntity, 's', 's.id = pv.size_id');
           if (request.sizeId) {
-            qb.where('s.id = :sizeId', { sizeId: request.sizeId });
+            qb.andWhere('s.id = :sizeId', { sizeId: request.sizeId });
           }
 
           if (request.price) {
             switch (request.price) {
               case 1:
-                qb.andWhere('pv.sale_price < :price', { price: 3000000 });
+                qb.andWhere('p.sale_price < :price', { price: 3000000 });
                 break;
               case 2:
-                qb.andWhere('pv.sale_price >= :priceFrom', {
+                qb.andWhere('p.sale_price >= :priceFrom', {
                   priceFrom: 3000000,
-                }).andWhere('pv.sale_price < :priceTo', { priceTo: 6000000 });
+                }).andWhere('p.sale_price < :priceTo', { priceTo: 6000000 });
                 break;
               case 3:
-                qb.andWhere('pv.sale_price >= :priceFrom', {
+                qb.andWhere('p.sale_price >= :priceFrom', {
                   priceFrom: 6000000,
-                }).andWhere('pv.sale_price < :priceTo', { priceTo: 9000000 });
+                }).andWhere('p.sale_price < :priceTo', { priceTo: 9000000 });
                 break;
               case 4:
-                qb.andWhere('pv.sale_price >= :priceFrom', {
+                qb.andWhere('p.sale_price >= :priceFrom', {
                   priceFrom: 9000000,
-                }).andWhere('pv.sale_price < :priceTo', { priceTo: 12000000 });
+                }).andWhere('p.sale_price < :priceTo', { priceTo: 12000000 });
                 break;
               case 5:
-                qb.andWhere('pv.sale_price > :price', { price: 12000000 });
+                qb.andWhere('p.sale_price > :price', { price: 12000000 });
                 break;
 
               default:
@@ -177,15 +182,26 @@ export class ProductRepository
       .where('p.deleted_at IS NULL');
 
     if (request.keyword) {
-      query.andWhere(`UNACCENT(p.name) ILIKE UNACCENT(:keyword) escape '\\'`, {
-        keyword: `%${escapeCharForSearch(request.keyword)}%`,
-      });
+      query.andWhere(
+        `LOWER(unaccent("p"."name")) LIKE LOWER(unaccent(:name)) ESCAPE '\\'`,
+        {
+          name: `%${escapeCharForSearch(request.keyword)}%`,
+        },
+      );
     }
 
     if (request.categoryId) {
       query.andWhere('p.category_id = :categoryId', {
         categoryId: request.categoryId,
       });
+    } else {
+      query.orderBy('p.created_at', 'DESC');
+    }
+
+    if (request.orderPrice) {
+      query.orderBy('p.sale_price', request.orderPrice === 1 ? 'ASC' : 'DESC');
+    } else if (request?.orderSell) {
+      query.orderBy('p.sell', request.orderSell === 1 ? 'ASC' : 'DESC');
     } else {
       query.orderBy('p.created_at', 'DESC');
     }
@@ -200,4 +216,15 @@ export class ProductRepository
 
     return [data, count];
   }
+
+  // public updateView(id: number): Promise<any> {
+  //   return this.productRepository
+  //     .createQueryBuilder()
+  //     .where('id = :id', { id })
+  //     .update()
+  //     .set({
+  //       view: () => 'view + 1',
+  //     })
+  //     .execute();
+  // }
 }

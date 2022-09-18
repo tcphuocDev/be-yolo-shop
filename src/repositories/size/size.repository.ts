@@ -29,7 +29,10 @@ export class SizeRepository
   public async list(request: ListSizeQuery): Promise<[any[], number]> {
     const query = this.sizeRepository
       .createQueryBuilder('s')
-      .select(['s.id AS id', 's.name AS name']);
+      .select([
+        's.id AS id',
+        's.name AS name',
+      ]);
 
     let data;
     if (request.isGetAll === IsGetAll.Yes)

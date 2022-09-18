@@ -2,7 +2,7 @@ import { BaseDto } from '@core/dto/base.dto';
 import { Transform } from 'class-transformer';
 import { IsInt } from 'class-validator';
 
-export class UserRequest extends BaseDto {
+export class UserRequest {
   @Transform((obj) => Number(obj.value))
   @IsInt()
   id: number;

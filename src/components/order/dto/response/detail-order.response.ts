@@ -65,6 +65,8 @@ export class DetailOrderResoponse {
   // @Expose()
   // @Type(() => CouponOrder)
   // coupon: CouponOrder;
+  @Expose()
+  phone: string;
 
   @Expose()
   status: number;

@@ -19,7 +19,10 @@ import { IsMeQuery } from '@utils/is-me.query';
 import { isEmpty } from 'lodash';
 import { RoleEnum } from 'src/constants/role.enum';
 import { ListOrderQuery } from './dto/query/list-order.query';
-import { ChangeStatusRequest } from './dto/request/change-status.request';
+import {
+  ChangeStatusBodyDto,
+  ChangeStatusRequest,
+} from './dto/request/change-status.request';
 import { CheckoutOrderPublicRequest } from './dto/request/checkout-order.public.request';
 import { CheckoutOrderRequest } from './dto/request/checkout-order.request';
 import { CreateOrderRequest } from './dto/request/create-order.request';
@@ -44,11 +47,7 @@ export class OrderController {
   }
 
   @Get('/list')
-  list(@Query() query: ListOrderQuery, @Request() req: any) {
-    const { request, responseError } = query;
-    if (responseError && !isEmpty(responseError)) {
-      return responseError;
-    }
+  list(@Query() request: ListOrderQuery, @Request() req: any) {
     return this.orderService.list(request, req.user);
   }
 
@@ -87,16 +86,35 @@ export class OrderController {
     return this.orderService.checkout({ ...request }, req.user);
   }
 
+  // @UseGuards(JwtAuthGuard)
+  // @Roles(RoleEnum.ADMIN)
+  // @Put(':id/change-status')
+  // changeStatus(@Body() body: ChangeStatusRequest, @Param('id') id: number) {
+  //   const { request, responseError } = body;
+  //   if (responseError && !isEmpty(responseError)) {
+  //     return responseError;
+  //   }
+
+  //   return this.orderService.changeStatus(
+  //     {
+  //       ...request,
+  //     },
+  //     id,
+  //   );
+  // }
   @UseGuards(JwtAuthGuard)
   @Roles(RoleEnum.ADMIN)
   @Put(':id/change-status')
-  changeStatus(@Body() body: ChangeStatusRequest, @Param('id') id: number) {
+  changeStatus(
+    @Body() body: ChangeStatusBodyDto,
+    @Param('id', new ParseIntPipe()) id: number,
+  ) {
     const { request, responseError } = body;
     if (responseError && !isEmpty(responseError)) {
       return responseError;
     }
-
-    return this.orderService.changeStatus(request, id);
+    request.id = id;
+    return this.orderService.changeStatus(request);
   }
 
   @Public()

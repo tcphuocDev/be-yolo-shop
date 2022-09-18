@@ -27,6 +27,9 @@ export class ProductEntity {
   slug: string;
 
   @Column()
+  sell: number;
+
+  @Column()
   tag: string;
 
   @CreateDateColumn()
