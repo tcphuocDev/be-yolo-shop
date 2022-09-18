@@ -54,8 +54,6 @@ export class ProductService {
     files: any,
   ): Promise<ResponsePayload<any>> {
     try {
-      console.log(request);
-
       const colorIds = [];
       const sizeIds = [];
       request.productVersions.map((e) => {
@@ -185,8 +183,6 @@ export class ProductService {
     files: any,
   ): Promise<ResponsePayload<any>> {
     const product = await this.productRepository.findOneById(request.id);
-    console.log('product', product);
-
     if (!product) {
       return new ApiError(
         ResponseCodeEnum.NOT_FOUND,

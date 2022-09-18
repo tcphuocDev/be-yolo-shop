@@ -27,7 +27,7 @@ export class CheckoutOrderPublicRequest extends CreateOrderRequest {
   fullname: string;
 
   @IsEnum(GenderEnum)
-  @IsNotEmpty()
+  // @IsNotEmpty()
   gender: GenderEnum;
 
   // @IsInt()

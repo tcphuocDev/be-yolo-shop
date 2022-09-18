@@ -63,7 +63,7 @@ export class ColorService {
       items: dataReturn,
       meta: {
         total: count,
-        page: request.page,
+        page: request.request.page,
       },
     })
       .withCode(ResponseCodeEnum.SUCCESS)
@@ -89,8 +89,8 @@ export class ColorService {
       .build();
   }
 
-  async delete(request: DetailRequest): Promise<any> {
-    const color = await this.colorRepository.findOneById(request.id);
+  async delete(id: number): Promise<any> {
+    const color = await this.colorRepository.findOneById(id);
     if (!color) {
       return new ResponseBuilder()
         .withCode(ResponseCodeEnum.NOT_FOUND)
@@ -98,10 +98,14 @@ export class ColorService {
         .build();
     }
 
-    await this.colorRepository.remove(color.id);
-    return new ResponseBuilder()
-      .withCode(ResponseCodeEnum.SUCCESS)
-      .withMessage(await this.i18n.translate('message.SUCCESS'))
-      .build();
+    try {
+      await this.colorRepository.remove(id);
+      return new ResponseBuilder().withCode(ResponseCodeEnum.SUCCESS).build();
+    } catch (error) {
+      return new ApiError(
+        ResponseCodeEnum.BAD_REQUEST,
+        await this.i18n.translate('error.CAN_NOT_DELETE'),
+      ).toResponse();
+    }
   }
 }

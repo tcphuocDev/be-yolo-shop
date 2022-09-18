@@ -12,4 +12,5 @@ export interface UserRepositoryInterface
     gender: number,
     email: string,
   ): UserEntity;
+  dashboardUser(): Promise<any>;
 }

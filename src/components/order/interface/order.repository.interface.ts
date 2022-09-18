@@ -12,5 +12,7 @@ export interface OrderRepositoryInterface
 
   detail(id: number, request: IsMeQuery, user: number): Promise<any>;
 
-  list(request: ListOrderQuery, userId: number): Promise<any>;
+  list(request: ListOrderQuery, userId: number): Promise<[any[], number]>;
+  sumMoney();
+  dashboardMoney(startDate: Date, endDate: Date): Promise<any>;
 }

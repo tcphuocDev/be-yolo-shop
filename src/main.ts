@@ -23,7 +23,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api/v1/yolo', app, document);
+  SwaggerModule.setup('', app, document);
 
   await app.listen(8080);
 }

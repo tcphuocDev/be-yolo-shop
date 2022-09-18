@@ -83,14 +83,15 @@ export class CategoryService {
         .build();
     }
 
-    await this.categoryRepository.remove(category.id);
-
-    return new ResponseBuilder()
-      .withCode(ResponseCodeEnum.SUCCESS)
-      .withMessage(
-        await this.i18n.translate('message.defineCategory.deleteSuccess'),
-      )
-      .build();
+    try {
+      await this.categoryRepository.remove(id);
+      return new ResponseBuilder().withCode(ResponseCodeEnum.SUCCESS).build();
+    } catch (error) {
+      return new ApiError(
+        ResponseCodeEnum.BAD_REQUEST,
+        await this.i18n.translate('error.CAN_NOT_DELETE'),
+      ).toResponse();
+    }
   }
 
   public async updateCategory(request: any): Promise<any> {

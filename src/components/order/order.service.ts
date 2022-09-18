@@ -90,10 +90,10 @@ export class OrderService {
       const order = await queryRunner.manager.save(orderEntity);
       const orderDetailEntities = request.products.map((item: any) =>
         this.orderDetailRepository.createOrderDetail({
+          productId: item.productId,
           productVersionId: item.productVersionId,
           orderId: order.id,
           quantity: item.quantity,
-          price: item.price,
         }),
       );
       await queryRunner.manager.save(orderDetailEntities);
@@ -149,6 +149,7 @@ export class OrderService {
     try {
       const orderDetailEntities = request.products.map((item) =>
         this.orderDetailRepository.createOrderDetail({
+          productId: item.productId,
           productVersionId: item.productVersionId,
           orderId: myOrderInCart.id,
           quantity: item.quantity,
@@ -196,7 +197,10 @@ export class OrderService {
       .build();
   }
 
-  async list(request: ListOrderQuery, user: UserRequest): Promise<any> {
+  async list(
+    request: ListOrderQuery,
+    user: UserRequest,
+  ): Promise<ResponsePayload<any>> {
     const [data, count] = await this.orderRepository.list(request, user.id);
 
     const dataReturn = plainToClass(DetailOrderResoponse, data, {
@@ -219,9 +223,8 @@ export class OrderService {
 
   async changeStatus(
     request: ChangeStatusRequest,
-    id: number,
   ): Promise<ResponsePayload<any>> {
-    const order = await this.orderRepository.findOneById(id);
+    const order = await this.orderRepository.findOneById(request.id);
     if (!order) {
       return new ApiError(
         ResponseCodeEnum.NOT_FOUND,
@@ -268,7 +271,6 @@ export class OrderService {
       default:
         break;
     }
-
     if (!flag) {
       return new ApiError(
         ResponseCodeEnum.BAD_REQUEST,
@@ -299,16 +301,37 @@ export class OrderService {
 
       order.status = OrderStatusEnum.REJECT;
     }
+
+    let products: ProductEntity[] = [];
+    if (isSuccess) {
+      const productsQuantity =
+        await this.productVersionRepository.getProductIdsByOrderId(order.id);
+      const productMap = new Map();
+      const productIds = [];
+      productsQuantity.forEach((product) => {
+        productIds.push(product.productId);
+        productMap.set(product.productId, +product.quantity);
+      });
+      products = await this.productRepository.findByCondition({
+        id: In(productIds),
+      });
+
+      products.forEach((product) => {
+        product.sell = product.sell + productMap.get(product.id) || 0;
+      });
+    }
     const queryRunner = this.connection.createQueryRunner();
 
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      await queryRunner.manager.save(order);
+      const orderResponse = await queryRunner.manager.save(order);
       if (productVersions.length)
         await queryRunner.manager.save(productVersions);
+
+      if (products.length) await queryRunner.manager.save(products);
       await queryRunner.commitTransaction();
-      return new ResponseBuilder()
+      return new ResponseBuilder(orderResponse)
         .withCode(ResponseCodeEnum.SUCCESS)
         .withMessage(await this.i18n.translate('message.SUCCESS'))
         .build();
@@ -460,7 +483,19 @@ export class OrderService {
         await this.i18n.translate('error.NOT_FOUND'),
       ).toResponse();
     }
+    const productIds = uniq(map(request.products, 'productId'));
+    const items = await this.productRepository.findByCondition({
+      id: In(productIds),
+    });
+
+    if (productIds.length !== items.length) {
+      return new ApiError(
+        ResponseCodeEnum.NOT_FOUND,
+        await this.i18n.translate('error.NOT_FOUND'),
+      ).toResponse();
+    }
     const productVersionMap = new Map();
+    const productMap = new Map();
     const productVersionInCartMap = new Map();
     const productQuantityInvalid = [];
     request.products.forEach((e) => {
@@ -475,6 +510,10 @@ export class OrderService {
       if (productVersion.quantity < 0) {
         productQuantityInvalid.push(productVersion.id);
       }
+    });
+
+    items.forEach((item) => {
+      productMap.set(item.id, item);
     });
 
     if (productQuantityInvalid.length) {
@@ -528,12 +567,13 @@ export class OrderService {
       }
       const orderDetailEntities = request.products.map((item) =>
         this.orderDetailRepository.createOrderDetail({
+          productId: item.productId,
           productVersionId: item.productVersionId,
           orderId: order.id,
           quantity: item.quantity,
           price:
-            productVersionMap.get(item.productVersionId).salePrice ||
-            productVersionMap.get(item.productVersionId).price,
+            productMap.get(item.productId)?.salePrice ||
+            productMap.get(item.productId)?.price,
         }),
       );
 

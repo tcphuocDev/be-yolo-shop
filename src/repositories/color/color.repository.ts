@@ -28,17 +28,17 @@ export class ColorRepository
 
   public async list(request: ListColorQuery): Promise<[any[], number]> {
     const query = this.colorRepository
-      .createQueryBuilder('s')
-      .select(['s.id AS id', 's.name AS name']);
+      .createQueryBuilder('c')
+      .select(['c.id AS id', 'c.name AS name', 'c.code AS code']);
 
     let data;
-    if (request.isGetAll === IsGetAll.Yes)
-      data = await query.orderBy('s.id', 'DESC').getRawMany();
+    if (request.request.isGetAll === IsGetAll.Yes)
+      data = await query.orderBy('c.id', 'DESC').getRawMany();
     else
       data = await query
-        .orderBy('s.id', 'DESC')
-        .limit(request.take)
-        .offset(request.skip)
+        .orderBy('c.id', 'DESC')
+        .limit(request.request.take)
+        .offset(request.request.skip)
         .getRawMany();
     const count = await query.getCount();
     return [data, count];

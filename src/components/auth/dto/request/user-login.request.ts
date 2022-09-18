@@ -11,12 +11,11 @@ import {
 export class UserLoginRequest extends BaseDto {
   @ApiProperty({ example: 'example@gmail.com', description: 'email' })
   @IsNotEmpty()
-  @IsEmail()
+  // @IsEmail()
   @MaxLength(255)
   email: string;
 
   @ApiProperty({ example: 'aaaaaaaaaaaaaa', description: 'password' })
   @IsString()
-  @IsOptional()
   password: string;
 }

@@ -47,7 +47,7 @@ export class OrderRepository
         'o.id AS id',
         'o.status AS status',
         'o.address AS address',
-        'o.phone AS phone',
+        'o.phone AS "phone"',
         'o.created_at AS "createdAt"',
         'o.updated_at AS "updatedAt"',
         `JSON_BUILD_OBJECT('id', c.id, 'code', c.code, 'value', c.value) AS coupon`,
@@ -69,7 +69,7 @@ export class OrderRepository
               'od.quantity AS quantity',
               'p.name AS product_name',
               'p.id AS product_id',
-              'p.price AS order_price',
+              'od.price AS order_price',
               'p.sale_price AS sale_price',
               'p.price AS price',
               'od.order_id AS order_id',
@@ -91,7 +91,7 @@ export class OrderRepository
       )
       .where('o.id = :id', { id });
     if (request.isMe === IsMe.Yes) {
-      query.andWhere('o.user_id = :uid', { uid: userId });
+      query.andWhere('o.user_id = :userId', { userId: userId });
     }
     return query
       .groupBy('o.id')
@@ -100,7 +100,10 @@ export class OrderRepository
       .getRawOne();
   }
 
-  async list(request: ListOrderQuery, userId: number): Promise<any> {
+  async list(
+    request: ListOrderQuery,
+    userId: number,
+  ): Promise<[any[], number]> {
     const query = this.orderRepository
       .createQueryBuilder('o')
       .select([
@@ -115,7 +118,7 @@ export class OrderRepository
         `CASE WHEN COUNT(qb) = 0 THEN '[]' ELSE JSON_AGG(DISTINCT JSONB_BUILD_OBJECT(
         'productId', qb.product_id, 'productName', qb.product_name,
         'productVersionId', qb.product_version_id,
-        'orderPrice', qb.order_price, 'salePrice', qb.sale_price,
+        'orderPrice', qb.order_price, 'salePrice', qb.sale_price, 'price', qb.price,
         'quantity', qb.quantity, 'color', qb.color, 'size', qb.size
       )) END AS "orderDetails"`,
       ])
@@ -128,8 +131,8 @@ export class OrderRepository
               'od.product_version_id AS product_version_id',
               'od.quantity AS quantity',
               'p.name AS product_name',
+              'od.price AS order_price',
               'p.id AS product_id',
-              'p.price AS order_price',
               'p.sale_price AS sale_price',
               'p.price AS price',
               'od.order_id AS order_id',
@@ -148,19 +151,72 @@ export class OrderRepository
         'qb',
         'qb.order_id = o.id',
       )
-      .where('o.status = :status', { status: OrderStatusEnum.INCART })
+      .where('o.status <> :status', { status: OrderStatusEnum.INCART })
       .groupBy('o.id')
       .addGroupBy('c.id')
       .addGroupBy('u.id');
-    if (request.isMe === IsMe.Yes) {
+    if (request.request.isMe === IsMe.Yes) {
       query.andWhere('o.user_id = :uid', { uid: userId });
     }
     const data = await query
       .orderBy('o.created_at', 'DESC')
-      .limit(request.take)
-      .offset(request.skip)
+      .limit(request.request.take)
+      .offset(request.request.skip)
       .getRawMany();
     const count = await query.getCount();
     return [data, count];
+  }
+
+  async detailByUserAndProduct(
+    productId: number,
+    userId: number,
+  ): Promise<any> {
+    return this.orderRepository
+      .createQueryBuilder('o')
+      .select(['o.id AS id'])
+      .innerJoin(OrderDetailEntity, 'od', 'o.id = od.order_id')
+      .innerJoin(ProductVersionEntity, 'pv', 'pv.id = od.product_version_id')
+      .where('o.user_id = :userId', { userId })
+      .andWhere('pv.product_id = :productId', { productId })
+      .andWhere('o.status IN (:...status)', {
+        status: [OrderStatusEnum.SUCCESS, OrderStatusEnum.RECEIVED],
+      })
+      .getRawOne();
+  }
+
+  async sumMoney() {
+    return this.orderRepository
+      .createQueryBuilder('o')
+      .select([
+        '(1 - 1.0*COALESCE(c.value, 0)/100)*SUM(od.quantity * od.price) AS price',
+      ])
+      .leftJoin(CouponEntity, 'c', 'o.coupon_id = c.id')
+      .innerJoin(OrderDetailEntity, 'od', 'od.order_id = o.id')
+      .where('o.status = :status', {
+        status: OrderStatusEnum.SUCCESS,
+      })
+      .groupBy('c.value')
+      .getRawMany();
+  }
+
+  dashboardMoney(startDate: Date, endDate: Date): Promise<any> {
+    return (
+      this.orderRepository
+        .createQueryBuilder('o')
+        .select([
+          'o.id AS id',
+          'o.status AS status',
+          'o.updated_at AS "updatedAt"',
+          'SUM(od.quantity * od.price) AS price',
+        ])
+        // .leftJoin(CouponEntity, 'c', 'o.coupon_id = c.id')
+        .innerJoin(OrderDetailEntity, 'od', 'od.order_id = o.id')
+        .where('o.updated_at::date >= :start', { start: startDate })
+        .andWhere('o.updated_at::date <= :end', { end: endDate })
+        .andWhere('o.status = :status', { status: OrderStatusEnum.SUCCESS })
+        .groupBy('o.id')
+        // .addGroupBy('c.value')
+        .getRawMany()
+    );
   }
 }

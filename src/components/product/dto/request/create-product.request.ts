@@ -47,10 +47,10 @@ export class CreateProductRequest extends BaseDto {
   @IsInt()
   price: number;
 
-  @Min(0)
-  @IsNotEmpty()
-  @Transform((obj) => Number(obj.value))
-  @IsInt()
+  @IsOptional()
+  // @Min(0)
+  // @Transform((obj) => Number(obj.value))
+  // @IsInt()
   salePrice: number;
 
   @IsNotEmpty()

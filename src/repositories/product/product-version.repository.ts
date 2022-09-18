@@ -31,6 +31,12 @@ export class ProductVersionRepository
     entity.quantity = quantity;
     return entity;
   }
+  countQuantity(): Promise<any> {
+    return this.productVersionRepository
+      .createQueryBuilder('p')
+      .select(['SUM(p.quantity) AS quantity'])
+      .getRawOne();
+  }
 
   getProductIdsByOrderId(orderId: number): Promise<any> {
     return this.productVersionRepository

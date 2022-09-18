@@ -34,6 +34,10 @@ export abstract class BaseAbstractRepository<T>
     return await this.entity.findOne(condition);
   }
 
+  public async count(condition: any): Promise<any> {
+    return await this.entity.count(condition);
+  }
+
   public async findAndCount(filterCondition: any): Promise<any> {
     return await this.entity.findAndCount(filterCondition);
   }
