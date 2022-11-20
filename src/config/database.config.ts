@@ -40,6 +40,7 @@ const connectionOptions: ConnectionOptions = {
   extra: {
     max: ormConfig.maxPool,
   },
+  // ssl: true,
   namingStrategy: new SnakeNamingStrategy(),
 };
 

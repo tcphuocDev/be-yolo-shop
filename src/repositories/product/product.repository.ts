@@ -43,6 +43,7 @@ export class ProductRepository
       .createQueryBuilder('p')
       .select([
         'p.id AS id',
+        'p.name AS name',
         'p.category_id AS categoryId',
         'p.description AS description',
         'p.slug AS slug',
@@ -102,6 +103,7 @@ export class ProductRepository
       .select([
         'p.id AS id',
         'p.category_id AS categoryId',
+        'p.name AS name',
         'p.description AS description',
         'p.slug AS slug',
         'p.price AS price',
@@ -113,7 +115,7 @@ export class ProductRepository
         `CASE WHEN COUNT(qb1) = 0 THEN '[]' ELSE JSON_AGG(DISTINCT JSONB_BUILD_OBJECT(
           'id', qb1.id, 'url', qb1.url
         )) END AS "productImages"`,
-        `JSON_BUILD_OBJECT('id', c.id , 'name', c.name) AS category`,
+        `JSON_BUILD_OBJECT('id', c.id , 'name', c.name,'slug',c.slug) AS category`,
         `CASE WHEN COUNT(qb2) = 0 THEN '[]' ELSE JSON_AGG(DISTINCT JSONB_BUILD_OBJECT(
           'id', qb2.id,'color', qb2.color, 'size', qb2.size
         )) END AS "productVersions"`,
@@ -135,7 +137,7 @@ export class ProductRepository
           qb.select([
             'pv.id AS id',
             'pv.product_id AS product_id',
-            `JSON_BUILD_OBJECT('id', c.id, 'name', c.name) AS color`,
+            `JSON_BUILD_OBJECT('id', c.id, 'name', c.name, 'code', c.code) AS color`,
             `JSON_BUILD_OBJECT('id', s.id, 'name', s.name) AS size`,
           ])
             .from(ProductVersionEntity, 'pv')
@@ -188,6 +190,11 @@ export class ProductRepository
           name: `%${escapeCharForSearch(request.keyword)}%`,
         },
       );
+    }
+    if (request.tag) {
+      query.andWhere('p.tag = :tag', {
+        tag: request.tag,
+      });
     }
 
     if (request.categoryId) {

@@ -15,7 +15,7 @@ async function bootstrap() {
   app.useGlobalPipes(new SortQueryPipe());
   app.useGlobalPipes(new FilterQueryPipe());
   app.useGlobalInterceptors(new ExceptionEnterceptor());
-  app.useStaticAssets(join(__dirname, '..', '..', 'uploads'));
+  app.useStaticAssets(join(__dirname, '..', 'uploads'));
   const options = new DocumentBuilder()
     .setTitle('API docs yolo')
     .addBearerAuth()

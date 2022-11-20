@@ -6,6 +6,12 @@ export class BaseResponse {
 
   @Expose()
   name: string;
+
+  @Expose()
+  code: string;
+
+  @Expose()
+  slug: string;
 }
 
 class Category extends BaseResponse {}

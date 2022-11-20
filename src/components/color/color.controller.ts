@@ -1,4 +1,5 @@
 import { JwtAuthGuard } from '@components/auth/guards/jwt-auth.guard';
+import { Public } from '@core/decorators/public.decorator';
 import { Roles } from '@core/decorators/roles.decorator';
 import {
   Body,
@@ -54,6 +55,7 @@ export class ColorController {
     });
   }
 
+  @Public()
   @Get('/list')
   list(@Query() request: ListColorQuery) {
     return this.colorService.list(request);
@@ -66,7 +68,6 @@ export class ColorController {
     return this.colorService.detail(request);
   }
 
-  
   @UseGuards(JwtAuthGuard)
   @Delete('/:id')
   delete(@Param() payload: DetailRequest) {

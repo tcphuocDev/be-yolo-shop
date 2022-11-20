@@ -1,5 +1,6 @@
 import { JwtAuthGuard } from '@components/auth/guards/jwt-auth.guard';
 import { ColorServiceInterface } from '@components/color/interface/color.service.interface';
+import { Public } from '@core/decorators/public.decorator';
 import { Roles } from '@core/decorators/roles.decorator';
 import {
   Body,
@@ -41,6 +42,7 @@ export class SizeController {
     return this.sizeService.create(request);
   }
 
+  @Public()
   @Get('/list')
   list(@Query() payload: ListSizeQuery) {
     const { request, responseError } = payload;
