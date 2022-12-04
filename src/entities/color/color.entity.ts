@@ -7,4 +7,7 @@ export class ColorEntity {
 
   @Column()
   name: string;
+
+  @Column()
+  code: string;
 }

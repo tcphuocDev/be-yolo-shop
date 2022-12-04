@@ -7,4 +7,9 @@ export class CreateColorRequest extends BaseDto {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @ApiProperty({ example: 'vang' })
+  @IsString()
+  @IsNotEmpty()
+  code: string;
 }

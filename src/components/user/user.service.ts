@@ -49,7 +49,7 @@ export class UserService {
       .build();
   }
   async update(
-    request: UpdateUserRequestDto & DetailRequest,
+    request: UpdateUserRequestDto,
     currentUser: UserRequest,
   ): Promise<any> {
     const user = await this.userRepository.findOneById(request.id);

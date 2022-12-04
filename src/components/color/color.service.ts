@@ -5,8 +5,10 @@ import { PagingResponse } from '@utils/paging.response';
 import { ResponseBuilder } from '@utils/response-builder';
 import { ResponsePayload } from '@utils/response-payload';
 import { plainToClass } from 'class-transformer';
+import { isEmpty } from 'lodash';
 import { I18nService } from 'nestjs-i18n';
 import { ResponseCodeEnum } from 'src/constants/response-code.enum';
+import { ILike, Not } from 'typeorm';
 import { ListColorQuery } from './dto/query/list-color.query';
 import { CreateColorRequest } from './dto/request/create-color.request';
 import { UpdateColorRequest } from './dto/request/update-color.request';
@@ -23,6 +25,22 @@ export class ColorService {
   ) {}
 
   async createColor(request: CreateColorRequest): Promise<any> {
+    const existName = await this.colorRepository.findOneByCondition({
+      name: request.name,
+    });
+    if (!isEmpty(existName)) {
+      return new ResponseBuilder()
+        .withMessage('message.defineColor.nameAlreadyExisted')
+        .build();
+    }
+    const existCode = await this.colorRepository.findOneByCondition({
+      code: request.code,
+    });
+    if (!isEmpty(existCode)) {
+      return new ResponseBuilder()
+        .withMessage('message.defineColor.codeAlreadyExisted')
+        .build();
+    }
     const colorEntity = this.colorRepository.createEntity(request);
     const color = await this.colorRepository.create(colorEntity);
     return new ResponseBuilder(color)
@@ -39,7 +57,20 @@ export class ColorService {
         await this.i18n.translate('error.NOT_FOUND'),
       ).toResponse();
     }
+    const existingCode = await this.colorRepository.findOneByCondition({
+      code: ILike(request.code),
+      id: Not(request.id),
+    });
+    if (existingCode) {
+      return new ResponseBuilder()
+        .withCode(ResponseCodeEnum.BAD_REQUEST)
+        .withMessage(
+          await this.i18n.translate('message.defineColor.codeAlreadyExists'),
+        )
+        .build();
+    }
     color.name = request.name;
+    color.code = request.code;
 
     const data = await this.colorRepository.create(color);
 

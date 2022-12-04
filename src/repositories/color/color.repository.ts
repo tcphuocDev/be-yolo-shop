@@ -23,6 +23,7 @@ export class ColorRepository
   public createEntity(request: CreateColorRequest): ColorEntity {
     const newEntity = new ColorEntity();
     newEntity.name = request.name;
+    newEntity.code = request.code;
     return newEntity;
   }
 

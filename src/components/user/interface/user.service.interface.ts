@@ -5,8 +5,5 @@ import { UpdateUserRequestDto } from '../dto/request/update-role.request.dto';
 
 export interface UserServiceInterface {
   getList(request: ListUserQueryRequestDto): Promise<any>;
-  update(
-    request: UpdateUserRequestDto & DetailRequest,
-    currentUser: UserRequest,
-  ): Promise<any>;
+  update(request: UpdateUserRequestDto, currentUser: UserRequest): Promise<any>;
 }

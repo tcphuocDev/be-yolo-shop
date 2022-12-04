@@ -10,12 +10,15 @@
   "defineColor":{
     "createSuccess":"Tạo thành công màu sắc",
     "updateSuccess":"Sửa thành công màu sắc",
-    "deleteSuccess":"Xóa thành công người sắc"
+    "deleteSuccess":"Xóa thành công người sắc",
+    "codeAlreadyExisted":"Mã màu sắc đã tồn tại",
+    "nameAlreadyExisted":"Tên màu sắc đã tồn tại"
   },
   "defineSize":{
     "createSuccess":"Tạo thành công kích cỡ",
     "updateSuccess":"Sửa thành công kích cỡ",
-    "deleteSuccess":"Xóa thành công kích cỡ"
+    "deleteSuccess":"Xóa thành công kích cỡ",
+    "nameAlreadyExisted":"Mã kích cỡ đã tồn tại"
   },
   "defineCategory":{
     "createSuccess":"Tạo thành công danh mục",

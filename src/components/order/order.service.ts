@@ -17,7 +17,7 @@ import { plainToClass } from 'class-transformer';
 import { first, map, uniq } from 'lodash';
 import { I18nService } from 'nestjs-i18n';
 import { ResponseCodeEnum } from 'src/constants/response-code.enum';
-import { Connection, In } from 'typeorm';
+import { Connection, In, Like } from 'typeorm';
 import { ListOrderQuery } from './dto/query/list-order.query';
 import { ChangeStatusRequest } from './dto/request/change-status.request';
 import { CheckoutOrderPublicRequest } from './dto/request/checkout-order.public.request';
@@ -56,6 +56,23 @@ export class OrderService {
     private readonly connection: Connection,
   ) {}
 
+  // private async generateSoExportCode() {
+  //   const currentDate = Moment().format('DDMMYYYY');
+  //   const lastSoExportInDay =
+  //     await this.orderRepository.findWithRelations({
+  //       where: { code: Like(`${SO_EXPORT_CODE_PREFIX}${currentDate}%`) },
+  //       withDeleted: true,
+  //       order: { code: 'DESC' },
+  //     });
+  //   if (!isEmpty(lastSoExportInDay)) {
+  //     const lastIncreaseId = Number(lastSoExportInDay.code.slice(-3));
+  //     const newIncreaseId = lastIncreaseId + 1;
+  //     return `${SO_EXPORT_CODE_PREFIX}${currentDate}${newIncreaseId
+  //       .toString()
+  //       .padStart(3, '0')}`;
+  //   }
+  //   return `${SO_EXPORT_CODE_PREFIX}${currentDate}000`;
+  // }
   async create(request: CreateOrderRequest, user: UserRequest): Promise<any> {
     const myOrderInCart = await this.orderRepository.findOneByCondition({
       userId: user.id,
@@ -460,7 +477,6 @@ export class OrderService {
     const userExist = await this.userRepository.findOneByCondition({
       phone: request.phone,
     });
-
     if (userExist?.isActive === UserStatusEnum.DeActive) {
       return new ApiError(
         ResponseCodeEnum.BAD_REQUEST,
@@ -576,7 +592,6 @@ export class OrderService {
             productMap.get(item.productId)?.price,
         }),
       );
-
       await queryRunner.manager.save(orderDetailEntities);
       await queryRunner.manager.save(productVersions);
       await queryRunner.commitTransaction();

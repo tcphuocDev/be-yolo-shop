@@ -11,13 +11,17 @@ import {
   Query,
   UseGuards,
   Request,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { DetailRequest } from '@utils/detail.request';
 import { ResponsePayload } from '@utils/response-payload';
 import { isEmpty } from 'lodash';
 import { RoleEnum } from 'src/constants/role.enum';
 import { ListUserQueryRequestDto } from './dto/query/list-user.request.dto';
-import { UpdateUserRequestDto } from './dto/request/update-role.request.dto';
+import {
+  UpdateUserRequestBody,
+  UpdateUserRequestDto,
+} from './dto/request/update-role.request.dto';
 import { UserResponseDto } from './dto/response/user.response.dto';
 import { UserServiceInterface } from './interface/user.service.interface';
 
@@ -45,14 +49,17 @@ export class UserController {
   @Roles(RoleEnum.ADMIN)
   @Put('/:id')
   public async update(
-    @Param() param: DetailRequest,
-    @Body() request: UpdateUserRequestDto,
+    @Param('id', new ParseIntPipe()) id,
+    @Body() payload: UpdateUserRequestBody,
     @Request() req: any,
   ) {
-    const result = await this.userService.update(
-      { ...request, ...param },
-      req.user,
-    );
+    const { request, responseError } = payload;
+
+    if (responseError && !isEmpty(responseError)) {
+      return responseError;
+    }
+    request.id = id;
+    const result = await this.userService.update({ ...request }, req.user);
     return result;
   }
 }
