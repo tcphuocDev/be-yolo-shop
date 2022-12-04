@@ -208,7 +208,9 @@ export class ProductRepository
     if (request.orderPrice) {
       query.orderBy('p.sale_price', request.orderPrice === 1 ? 'ASC' : 'DESC');
     } else if (request?.orderSell) {
-      query.orderBy('p.sell', request.orderSell === 1 ? 'ASC' : 'DESC');
+      query
+        .where('p.sell > 0')
+        .orderBy('p.sell', request.orderSell === 1 ? 'ASC' : 'DESC');
     } else {
       query.orderBy('p.created_at', 'DESC');
     }

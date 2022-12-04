@@ -141,6 +141,7 @@ export class UserRepository
         'qb.user_id = u.id',
       )
       .groupBy('u.id')
+      .orderBy('money', 'DESC')
       .getRawMany();
   }
 }
